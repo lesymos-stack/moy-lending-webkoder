@@ -419,9 +419,17 @@ section { padding: 100px 0; position: relative; }
   .aurora-3 { width: 280px; height: 280px; }
   .problems-grid, .bento-grid, .reviews-grid, .pricing-grid { grid-template-columns: 1fr; gap: 12px; }
   .bento-large { grid-column: span 1; }
-  .project-card { flex-direction: column; min-width: 88vw; }
-  .project-image { width: 100%; min-height: 180px; }
-  .project-info { width: 100%; padding: 24px 20px; }
+  .project-card { flex-direction: column; min-width: 85vw; max-width: 92vw; }
+  .project-image { width: 100%; min-height: 150px; }
+  .project-info { width: 100%; padding: 20px 16px; }
+  .project-info h3 { font-size: 17px; margin-bottom: 2px; }
+  .project-client { font-size: 12px; margin-bottom: 12px; }
+  .project-detail { margin-bottom: 10px; }
+  .project-detail strong { font-size: 11px; margin-bottom: 2px; }
+  .project-detail p { font-size: 12px; line-height: 1.5; }
+  .project-result { font-size: 16px; }
+  .project-tag { font-size: 10px; padding: 3px 10px; margin-bottom: 8px; }
+  .projects-scroll { gap: 12px; scroll-padding: 16px; padding-left: 16px; padding-right: 16px; }
   .timeline-step { flex: 0 0 50%; margin-bottom: 24px; }
   .step-num { width: 40px; height: 40px; font-size: 14px; }
   .about-grid { grid-template-columns: 1fr; gap: 32px; }
@@ -435,6 +443,12 @@ section { padding: 100px 0; position: relative; }
   .scroll-top { bottom: 16px; left: 16px; width: 44px; height: 44px; }
 }
 @media (max-width: 480px) {
+  .project-card { min-width: 90vw; }
+  .project-info h3 { font-size: 15px; }
+  .project-detail p { font-size: 11px; }
+  .project-result { font-size: 14px; }
+  .project-image { min-height: 120px; }
+  .mockup-body { font-size: 32px; }
   section { padding: 40px 0; }
   .split-container { height: 35vh; min-height: 220px; }
   .split-avatar { width: 50px; height: 50px; font-size: 20px; }
@@ -514,7 +528,7 @@ section { padding: 100px 0; position: relative; }
 
 /* Smooth scale-in for project cards on scroll */
 .project-card { transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s; }
-.project-card:hover { transform: scale(1.02); box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.1); }
+@media (min-width: 769px) { .project-card:hover { transform: scale(1.02); box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.1); } }
 
 /* Contact links glow */
 .contact-link { position: relative; overflow: hidden; }
