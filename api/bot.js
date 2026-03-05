@@ -2,11 +2,14 @@ const TOKEN = '8634608757:AAEMOw-6ONdT48HMC5oIfMNZ2FvlGx8CwHI';
 const OWNER_CHAT_ID = '2001560341';
 const API = 'https://api.telegram.org/bot' + TOKEN;
 
-async function sendMessage(chatId, text) {
+// Отправка сообщения (с опциональной inline-клавиатурой)
+async function sendMessage(chatId, text, replyMarkup) {
+  const body = { chat_id: chatId, text: text };
+  if (replyMarkup) body.reply_markup = replyMarkup;
   await fetch(API + '/sendMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text: text })
+    body: JSON.stringify(body)
   });
 }
 
@@ -30,7 +33,12 @@ export default async function handler(req, res) {
         '📝 Опишите вашу задачу — что нужно сделать, для какого бизнеса, какие сроки?\n\n' +
         'Или выберите команду:\n' +
         '/services — услуги и цены\n' +
-        '/contact — связаться напрямую'
+        '/contact — связаться напрямую',
+        {
+          inline_keyboard: [[
+            { text: '📋 Каталог услуг', web_app: { url: 'https://moy-lending-webkoder.vercel.app/tg-app/' } }
+          ]]
+        }
       );
     }
     else if (text === '/services') {

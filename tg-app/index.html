@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ВебКодер — Каталог услуг</title>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* ===== СБРОС И БАЗОВЫЕ СТИЛИ ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+      font-family: -apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== CSS-ПЕРЕМЕННЫЕ ИЗ TELEGRAM THEME ===== */
+    :root {
+      --tg-bg: var(--tg-theme-bg-color, #ffffff);
+      --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+      --tg-text: var(--tg-theme-text-color, #000000);
+      --tg-hint: var(--tg-theme-hint-color, #999999);
+      --tg-link: var(--tg-theme-link-color, #2AABEE);
+      --tg-button: var(--tg-theme-button-color, #2AABEE);
+      --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+      --tg-header-bg: var(--tg-theme-header-bg-color, #ffffff);
+
+      /* Дополнительные переменные */
+      --accent: #2AABEE;
+      --success: #34C759;
+      --card-radius: 12px;
+      --page-padding: 16px;
+      --transition-speed: 250ms;
+    }
+
+    body {
+      background: var(--tg-bg);
+      color: var(--tg-text);
+    }
+
+    /* ===== КОНТЕЙНЕР ПРИЛОЖЕНИЯ ===== */
+    .app {
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===== ЭКРАНЫ — ПЕРЕХОДЫ ===== */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: 100vh;
+      padding: var(--page-padding);
+      padding-bottom: 100px; /* место для MainButton */
+      opacity: 0;
+      transform: translateX(30px);
+      pointer-events: none;
+      transition: opacity var(--transition-speed) ease,
+                  transform var(--transition-speed) ease;
+      will-change: opacity, transform;
+    }
+
+    .screen.active {
+      position: relative;
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    /* Обратный переход (назад) */
+    .screen.slide-back {
+      transform: translateX(-30px);
+    }
+
+    /* ===== ЭКРАН 1: КАТАЛОГ ===== */
+    .header {
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+
+    .header__title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--tg-text);
+    }
+
+    .header__subtitle {
+      font-size: 14px;
+      color: var(--tg-hint);
+      margin-top: 4px;
+    }
+
+    /* Бейдж статуса */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 6px 14px;
+      background: rgba(52, 199, 89, 0.12);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--success);
+    }
+
+    .status-badge__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* Список карточек каталога */
+    .catalog-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    /* Карточка услуги в каталоге */
+    .service-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--tg-secondary-bg);
+      border-radius: var(--card-radius);
+      cursor: pointer;
+      min-height: 72px;
+      transition: transform 120ms ease, opacity 120ms ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .service-card:active {
+      transform: scale(0.97);
+      opacity: 0.85;
+    }
+
+    .service-card__icon {
+      font-size: 32px;
+      flex-shrink: 0;
+      width: 44px;
+      text-align: center;
+    }
+
+    .service-card__info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .service-card__name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--tg-text);
+      line-height: 1.3;
+    }
+
+    .service-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-top: 3px;
+    }
+
+    .service-card__price {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--tg-link);
+    }
+
+    .service-card__term {
+      font-size: 13px;
+      color: var(--tg-hint);
+    }
+
+    .service-card__projects {
+      font-size: 12px;
+      color: var(--tg-hint);
+      margin-top: 2px;
+    }
+
+    .service-card__arrow {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--tg-hint);
+      opacity: 0.5;
+    }
+
+    /* ===== ЭКРАН 2: ДЕТАЛИ УСЛУГИ ===== */
+    .detail {
+      padding-top: 12px;
+    }
+
+    .detail__icon {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .detail__title {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--tg-text);
+    }
+
+    .detail__pricing {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--tg-link);
+    }
+
+    .detail__description {
+      margin-top: 20px;
+      font-size: 15px;
+      color: var(--tg-text);
+      line-height: 1.6;
+      text-align: center;
+      padding: 0 8px;
+    }
+
+    /* Секция "Что входит" */
+    .detail__section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--tg-text);
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checklist__item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 15px;
+      color: var(--tg-text);
+      line-height: 1.4;
+      padding: 12px 14px;
+      background: var(--tg-secondary-bg);
+      border-radius: 10px;
+    }
+
+    .checklist__icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--success);
+      margin-top: 1px;
+    }
+
+    /* Социальное доказательство */
+    .detail__social-proof {
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: var(--tg-secondary-bg);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--tg-hint);
+    }
+
+    .detail__social-proof strong {
+      color: var(--tg-text);
+      font-weight: 600;
+    }
+
+    /* ===== ЭКРАН 3: ПОДТВЕРЖДЕНИЕ ===== */
+    .confirm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      text-align: center;
+      padding-top: 0;
+    }
+
+    /* Анимированная галочка */
+    .checkmark-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(52, 199, 89, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes scale-in {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .checkmark-circle svg {
+      width: 40px;
+      height: 40px;
+      color: var(--success);
+    }
+
+    .checkmark-circle .checkmark-path {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: draw-check 0.5s 0.3s ease forwards;
+    }
+
+    @keyframes draw-check {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .confirm__title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--tg-text);
+      margin-bottom: 8px;
+    }
+
+    .confirm__text {
+      font-size: 16px;
+      color: var(--tg-text);
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .confirm__hint {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--tg-hint);
+    }
+
+    /* ===== СОСТОЯНИЕ ЗАГРУЗКИ ===== */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--tg-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--tg-secondary-bg);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== ОШИБКА ОТПРАВКИ ===== */
+    .error-toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #FF3B30;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 50;
+      opacity: 0;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .error-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Оверлей загрузки -->
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Тост ошибки -->
+  <div class="error-toast" id="errorToast">Не удалось отправить заявку</div>
+
+  <div class="app">
+
+    <!-- ===== ЭКРАН 1: КАТАЛОГ ===== -->
+    <div class="screen active" id="screenCatalog">
+      <div class="header">
+        <h1 class="header__title">ВебКодер</h1>
+        <p class="header__subtitle">Цифровые продукты для бизнеса</p>
+        <div class="status-badge">
+          <span class="status-badge__dot"></span>
+          Свободен для проектов
+        </div>
+      </div>
+
+      <div class="catalog-list" id="catalogList">
+        <!-- Карточки генерируются из JS -->
+      </div>
+    </div>
+
+    <!-- ===== ЭКРАН 2: ДЕТАЛИ УСЛУГИ ===== -->
+    <div class="screen" id="screenDetail">
+      <div class="detail">
+        <div class="detail__icon" id="detailIcon"></div>
+        <h2 class="detail__title" id="detailTitle"></h2>
+        <div class="detail__pricing" id="detailPricing"></div>
+        <p class="detail__description" id="detailDescription"></p>
+
+        <h3 class="detail__section-title">Что входит</h3>
+        <ul class="checklist" id="detailChecklist"></ul>
+
+        <div class="detail__social-proof" id="detailProof"></div>
+      </div>
+    </div>
+
+    <!-- ===== ЭКРАН 3: ПОДТВЕРЖДЕНИЕ ===== -->
+    <div class="screen" id="screenConfirm">
+      <div class="confirm">
+        <div class="checkmark-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path class="checkmark-path" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2 class="confirm__title">Заявка отправлена!</h2>
+        <p class="confirm__text" id="confirmText"></p>
+        <p class="confirm__hint">10:00 — 20:00 МСК</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ===== ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP =====
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // ===== ДАННЫЕ УСЛУГ =====
+    const services = [
+      {
+        id: 'landing',
+        icon: '\uD83C\uDF10',
+        name: '\u041B\u0435\u043D\u0434\u0438\u043D\u0433',
+        price: '\u043E\u0442 35 000 \u0440\u0443\u0431',
+        term: '3\u20137 \u0434\u043D\u0435\u0439',
+        projects: 15,
+        description: '\u041F\u0440\u043E\u0434\u0430\u044E\u0449\u0438\u0439 \u043E\u0434\u043D\u043E\u0441\u0442\u0440\u0430\u043D\u0438\u0447\u043D\u044B\u0439 \u0441\u0430\u0439\u0442, \u043A\u043E\u0442\u043E\u0440\u044B\u0439 \u043F\u0440\u0438\u043D\u043E\u0441\u0438\u0442 \u0437\u0430\u044F\u0432\u043A\u0438 \u0438 \u043A\u043B\u0438\u0435\u043D\u0442\u043E\u0432. \u0411\u044B\u0441\u0442\u0440\u044B\u0439, \u0430\u0434\u0430\u043F\u0442\u0438\u0432\u043D\u044B\u0439, \u0441 SEO.',
+        features: [
+          '\u0414\u0438\u0437\u0430\u0439\u043D \u0438 \u0432\u0435\u0440\u0441\u0442\u043A\u0430',
+          '\u0410\u0434\u0430\u043F\u0442\u0438\u0432 \u043F\u043E\u0434 \u0432\u0441\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430',
+          'SEO-\u043E\u043F\u0442\u0438\u043C\u0438\u0437\u0430\u0446\u0438\u044F',
+          '\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u0430\u043D\u0430\u043B\u0438\u0442\u0438\u043A\u0438',
+          '30 \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0438'
+        ]
+      },
+      {
+        id: 'bot',
+        icon: '\uD83E\uDD16',
+        name: 'Telegram-\u0431\u043E\u0442',
+        price: '\u043E\u0442 30 000 \u0440\u0443\u0431',
+        term: '1\u20132 \u043D\u0435\u0434\u0435\u043B\u0438',
+        projects: 12,
+        description: '\u0411\u043E\u0442, \u043A\u043E\u0442\u043E\u0440\u044B\u0439 \u0437\u0430\u043F\u0438\u0448\u0435\u0442 \u043A\u043B\u0438\u0435\u043D\u0442\u043E\u0432, \u043F\u0440\u0438\u043C\u0435\u0442 \u0437\u0430\u043A\u0430\u0437\u044B \u0438 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0438\u0440\u0443\u0435\u0442 \u0440\u0443\u0442\u0438\u043D\u0443. \u0420\u0430\u0431\u043E\u0442\u0430\u0435\u0442 24/7.',
+        features: [
+          '\u041B\u043E\u0433\u0438\u043A\u0430 \u0438 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0438',
+          '\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u044F \u0441 CRM/\u043E\u043F\u043B\u0430\u0442\u043E\u0439',
+          '\u041F\u0430\u043D\u0435\u043B\u044C \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F',
+          '\u0418\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F \u043F\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044E',
+          '30 \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0438'
+        ]
+      },
+      {
+        id: 'app',
+        icon: '\uD83D\uDCF1',
+        name: '\u041C\u043E\u0431\u0438\u043B\u044C\u043D\u043E\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435',
+        price: '\u043E\u0442 150 000 \u0440\u0443\u0431',
+        term: '1\u20132 \u043C\u0435\u0441\u044F\u0446\u0430',
+        projects: 8,
+        description: '\u041F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0434\u043B\u044F iOS \u0438 Android \u0438\u0437 \u0435\u0434\u0438\u043D\u043E\u0439 \u043A\u043E\u0434\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u044B. \u041E\u0442 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u0434\u043E \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0431\u0438\u0437\u043D\u0435\u0441-\u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0439.',
+        features: [
+          '\u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438\u043D\u0442\u0435\u0440\u0444\u0435\u0439\u0441\u0430',
+          'iOS + Android',
+          'Backend + \u0431\u0430\u0437\u0430 \u0434\u0430\u043D\u043D\u044B\u0445',
+          '\u041F\u0430\u043D\u0435\u043B\u044C \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430',
+          '30 \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0438'
+        ]
+      },
+      {
+        id: 'ai',
+        icon: '\uD83E\uDDE0',
+        name: 'AI-\u0430\u0433\u0435\u043D\u0442',
+        price: '\u043E\u0442 80 000 \u0440\u0443\u0431',
+        term: '2\u20134 \u043D\u0435\u0434\u0435\u043B\u0438',
+        projects: 6,
+        description: '\u0423\u043C\u043D\u044B\u0439 \u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043D\u0442, \u043A\u043E\u0442\u043E\u0440\u044B\u0439 \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0442 \u043A\u043B\u0438\u0435\u043D\u0442\u0430\u043C \u0438 \u043E\u0431\u0440\u0430\u0431\u0430\u0442\u044B\u0432\u0430\u0435\u0442 \u0437\u0430\u044F\u0432\u043A\u0438 \u0432\u043C\u0435\u0441\u0442\u043E \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u0430.',
+        features: [
+          '\u041E\u0431\u0443\u0447\u0435\u043D\u0438\u0435 \u043D\u0430 \u0432\u0430\u0448\u0438\u0445 \u0434\u0430\u043D\u043D\u044B\u0445',
+          '\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u044F \u0441 \u043C\u0435\u0441\u0441\u0435\u043D\u0434\u0436\u0435\u0440\u0430\u043C\u0438',
+          '\u041F\u0430\u043D\u0435\u043B\u044C \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F',
+          '\u0410\u043D\u0430\u043B\u0438\u0442\u0438\u043A\u0430 \u0434\u0438\u0430\u043B\u043E\u0433\u043E\u0432',
+          '30 \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0438'
+        ]
+      }
+    ];
+
+    // ===== СОСТОЯНИЕ ПРИЛОЖЕНИЯ =====
+    let currentScreen = 'catalog'; // catalog | detail | confirm
+    let selectedService = null;
+
+    // ===== ПОЛУЧЕНИЕ ДАННЫХ ПОЛЬЗОВАТЕЛЯ =====
+    const user = tg.initDataUnsafe?.user || {};
+    const firstName = user.first_name || 'друг';
+    const userId = user.id || 0;
+    const username = user.username || '';
+
+    // ===== РЕНДЕР КАТАЛОГА =====
+    function renderCatalog() {
+      const list = document.getElementById('catalogList');
+      list.innerHTML = services.map(s => `
+        <div class="service-card" data-id="${s.id}" role="button" tabindex="0">
+          <div class="service-card__icon">${s.icon}</div>
+          <div class="service-card__info">
+            <div class="service-card__name">${s.name}</div>
+            <div class="service-card__meta">
+              <span class="service-card__price">${s.price}</span>
+              <span class="service-card__term">${s.term}</span>
+            </div>
+            <div class="service-card__projects">Сделано: ${s.projects} проектов</div>
+          </div>
+          <svg class="service-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </div>
+      `).join('');
+
+      // Обработчик тапа по карточке
+      list.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.dataset.id;
+          selectedService = services.find(s => s.id === id);
+          if (selectedService) {
+            // Тактильный отклик при тапе
+            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            showDetail(selectedService);
+          }
+        });
+      });
+    }
+
+    // ===== ПОКАЗАТЬ ЭКРАН ДЕТАЛЕЙ =====
+    function showDetail(service) {
+      // Заполняем контент
+      document.getElementById('detailIcon').textContent = service.icon;
+      document.getElementById('detailTitle').textContent = service.name;
+      document.getElementById('detailPricing').textContent = `${service.price} / ${service.term}`;
+      document.getElementById('detailDescription').textContent = service.description;
+
+      // Чеклист
+      const checklist = document.getElementById('detailChecklist');
+      checklist.innerHTML = service.features.map(f => `
+        <li class="checklist__item">
+          <svg class="checklist__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>${f}</span>
+        </li>
+      `).join('');
+
+      // Социальное доказательство
+      document.getElementById('detailProof').innerHTML =
+        `Выполнено проектов: <strong>${service.projects}</strong>`;
+
+      // Переключаем экран
+      switchScreen('detail');
+
+      // Показываем BackButton
+      tg.BackButton.show();
+      tg.BackButton.onClick(handleBack);
+
+      // Показываем MainButton "Записаться"
+      tg.MainButton.setText('Записаться');
+      tg.MainButton.show();
+      tg.MainButton.onClick(handleOrder);
+    }
+
+    // ===== ОТПРАВКА ЗАЯВКИ =====
+    async function handleOrder() {
+      // Предотвращаем повторные нажатия
+      tg.MainButton.showProgress();
+      tg.MainButton.disable();
+
+      // Тактильный отклик
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+      try {
+        const response = await fetch('/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: userId,
+            username: username,
+            firstName: firstName,
+            service: selectedService.name
+          })
+        });
+
+        if (!response.ok) throw new Error('Server error');
+
+        // Показываем экран подтверждения
+        showConfirm();
+      } catch (err) {
+        // Показываем ошибку
+        tg.MainButton.hideProgress();
+        tg.MainButton.enable();
+        showError();
+      }
+    }
+
+    // ===== ПОКАЗАТЬ ЭКРАН ПОДТВЕРЖДЕНИЯ =====
+    function showConfirm() {
+      // Тактильный отклик — успех
+      if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+      // Заполняем текст
+      document.getElementById('confirmText').textContent =
+        `${firstName}, спасибо! Отвечу в течение 2 часов.`;
+
+      // Переключаем экран
+      switchScreen('confirm');
+
+      // Скрываем BackButton
+      tg.BackButton.hide();
+
+      // MainButton -> "Закрыть"
+      tg.MainButton.hideProgress();
+      tg.MainButton.enable();
+      tg.MainButton.offClick(handleOrder);
+      tg.MainButton.setText('Закрыть');
+      tg.MainButton.onClick(handleClose);
+    }
+
+    // ===== ЗАКРЫТИЕ ПРИЛОЖЕНИЯ =====
+    function handleClose() {
+      tg.close();
+    }
+
+    // ===== НАВИГАЦИЯ НАЗАД =====
+    function handleBack() {
+      if (currentScreen === 'detail') {
+        switchScreen('catalog', true);
+        tg.BackButton.hide();
+        tg.BackButton.offClick(handleBack);
+        tg.MainButton.hide();
+        tg.MainButton.offClick(handleOrder);
+      }
+    }
+
+    // ===== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ =====
+    function switchScreen(screenName, isBack) {
+      const screens = {
+        catalog: document.getElementById('screenCatalog'),
+        detail: document.getElementById('screenDetail'),
+        confirm: document.getElementById('screenConfirm')
+      };
+
+      // Скрываем текущий экран
+      const currentEl = screens[currentScreen];
+      if (currentEl) {
+        currentEl.classList.remove('active');
+        if (isBack) {
+          currentEl.style.transform = 'translateX(30px)';
+        }
+      }
+
+      // Показываем новый экран
+      const nextEl = screens[screenName];
+      if (nextEl) {
+        // Подготовка к анимации
+        if (isBack) {
+          nextEl.style.transform = 'translateX(-30px)';
+        } else {
+          nextEl.style.transform = 'translateX(30px)';
+        }
+        nextEl.style.opacity = '0';
+
+        // Форсим reflow для запуска анимации
+        nextEl.offsetHeight;
+
+        nextEl.classList.add('active');
+        nextEl.style.transform = '';
+        nextEl.style.opacity = '';
+      }
+
+      currentScreen = screenName;
+
+      // Скролл наверх при переключении экрана
+      window.scrollTo(0, 0);
+    }
+
+    // ===== ТОСТ ОШИБКИ =====
+    function showError() {
+      const toast = document.getElementById('errorToast');
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 3000);
+    }
+
+    // ===== ЗАПУСК ПРИЛОЖЕНИЯ =====
+    function init() {
+      renderCatalog();
+
+      // Убираем загрузочный экран
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+      }, 300);
+    }
+
+    // Инициализация
+    init();
+  </script>
+</body>
+</html>
