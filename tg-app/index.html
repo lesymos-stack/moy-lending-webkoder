@@ -36,7 +36,8 @@
       --tg-header-bg: var(--tg-theme-header-bg-color, #ffffff);
 
       /* Дополнительные переменные */
-      --accent: #2AABEE;
+      --accent: #D4AF37;
+      --accent-rgb: 212, 175, 55;
       --success: #34C759;
       --card-radius: 12px;
       --page-padding: 16px;
@@ -134,7 +135,7 @@
     .catalog-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
       margin-top: 8px;
     }
 
@@ -143,13 +144,13 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 16px;
+      padding: 12px 14px;
       background: var(--tg-secondary-bg);
       border-radius: var(--card-radius);
-      border: 1px solid rgba(42, 171, 238, 0.25);
-      box-shadow: 0 0 8px rgba(42, 171, 238, 0.15), 0 0 20px rgba(42, 171, 238, 0.08);
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+      box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.15), 0 0 20px rgba(var(--accent-rgb), 0.08);
       cursor: pointer;
-      min-height: 72px;
+      min-height: 60px;
       transition: transform 120ms ease, opacity 120ms ease, box-shadow 200ms ease;
       -webkit-user-select: none;
       user-select: none;
@@ -158,7 +159,7 @@
     .service-card:active {
       transform: scale(0.97);
       opacity: 0.85;
-      box-shadow: 0 0 12px rgba(42, 171, 238, 0.3), 0 0 30px rgba(42, 171, 238, 0.15);
+      box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.3), 0 0 30px rgba(var(--accent-rgb), 0.15);
     }
 
     .service-card__icon {
@@ -190,7 +191,7 @@
     .service-card__price {
       font-size: 14px;
       font-weight: 500;
-      color: var(--tg-link);
+      color: var(--accent);
     }
 
     .service-card__term {
@@ -235,7 +236,7 @@
       margin-top: 8px;
       font-size: 16px;
       font-weight: 500;
-      color: var(--tg-link);
+      color: var(--accent);
     }
 
     .detail__description {
