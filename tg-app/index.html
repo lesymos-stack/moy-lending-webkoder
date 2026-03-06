@@ -146,10 +146,11 @@
       padding: 16px;
       background: var(--tg-secondary-bg);
       border-radius: var(--card-radius);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(42, 171, 238, 0.25);
+      box-shadow: 0 0 8px rgba(42, 171, 238, 0.15), 0 0 20px rgba(42, 171, 238, 0.08);
       cursor: pointer;
       min-height: 72px;
-      transition: transform 120ms ease, opacity 120ms ease;
+      transition: transform 120ms ease, opacity 120ms ease, box-shadow 200ms ease;
       -webkit-user-select: none;
       user-select: none;
     }
@@ -157,6 +158,7 @@
     .service-card:active {
       transform: scale(0.97);
       opacity: 0.85;
+      box-shadow: 0 0 12px rgba(42, 171, 238, 0.3), 0 0 30px rgba(42, 171, 238, 0.15);
     }
 
     .service-card__icon {
