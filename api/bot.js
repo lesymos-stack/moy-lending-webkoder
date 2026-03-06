@@ -1,5 +1,5 @@
-const TOKEN = '8634608757:AAEMOw-6ONdT48HMC5oIfMNZ2FvlGx8CwHI';
-const OWNER_CHAT_ID = '2001560341';
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const OWNER_CHAT_ID = process.env.OWNER_CHAT_ID;
 const API = 'https://api.telegram.org/bot' + TOKEN;
 
 // Отправка сообщения (с опциональной inline-клавиатурой)
