@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     else if (text === '/contact') {
       await sendMessage(chatId,
         '📬 Связаться со мной:\n\n' +
-        '📧 Email: laser.time.anapa@mail.ru\n' +
+        '📧 Email: tvoikod@mail.ru\n' +
         '💬 WhatsApp: https://whatsapp.com/dl/\n\n' +
         'Или просто напишите сюда — отвечу в течение 2 часов!'
       );
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       await sendMessage(chatId,
         'Спасибо, ' + name + '! Ваше сообщение получено.\n\n' +
         'Отвечу лично в течение 2 часов (10:00-20:00 МСК).\n' +
-        'Если срочно — напишите на почту laser.time.anapa@mail.ru'
+        'Если срочно — напишите на почту tvoikod@mail.ru'
       );
     }
   } catch (err) {}
